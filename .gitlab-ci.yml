@@ -1,0 +1,111 @@
+stages:
+  - build
+  - deploy
+  - cleanup
+
+variables:
+  IMAGE_NAME: $CI_REGISTRY_IMAGE
+  P4D_ADMIN_IMAGE_TAG_VERSIONED: $IMAGE_NAME:1.$CI_PIPELINE_IID
+  P4D_ADMIN_IMAGE_TAG_PREVIEW_VERSIONED: $IMAGE_NAME:preview-$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: "/certs"
+
+services:
+  - name: docker:24.0.6-dind
+    alias: docker
+
+build:
+  image: docker:24.0.6-dind
+  stage: build
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - |
+      if [ "$CI_COMMIT_REF_NAME" = "master" ]; then
+        docker build --cache-from $IMAGE_NAME:latest -t $P4D_ADMIN_IMAGE_TAG_VERSIONED .
+        docker push $P4D_ADMIN_IMAGE_TAG_VERSIONED
+        docker tag $P4D_ADMIN_IMAGE_TAG_VERSIONED $IMAGE_NAME:latest
+        docker push $IMAGE_NAME:latest
+      else
+        docker build --cache-from $IMAGE_NAME:preview-latest -t $P4D_ADMIN_IMAGE_TAG_PREVIEW_VERSIONED .
+        docker push $P4D_ADMIN_IMAGE_TAG_PREVIEW_VERSIONED
+        docker tag $P4D_ADMIN_IMAGE_TAG_PREVIEW_VERSIONED $IMAGE_NAME:preview-latest
+        docker push $IMAGE_NAME:preview-latest
+      fi
+  only:
+    - master
+    - develop
+  cache:
+    key: docker-layer-cache
+    paths:
+      - /var/lib/docker
+
+deploy:
+  image: alpine:3.19.0
+  stage: deploy
+  before_script:
+    - 'which ssh-agent || ( apk update && apk add openssh-client )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan $SSH_HOSTNAME >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - |
+      if [ "$CI_COMMIT_REF_NAME" = "master" ]; then
+        ssh $SSH_USER_NAME@$SSH_HOSTNAME "cd ~/p4d && \
+        docker pull $IMAGE_TAG_VERSIONED && \
+        sed -i 's|^P4D_ADMIN_IMAGE=.*|P4D_ADMIN_IMAGE=$IMAGE_TAG_VERSIONED|' .env  && \
+        docker compose up -d"
+      else
+        ssh $SSH_USER_NAME@$SSH_HOSTNAME "cd ~/p4d && \
+        docker pull $P4D_ADMIN_IMAGE_TAG_PREVIEW_VERSIONED && \
+        sed -i 's|^P4D_ADMIN_IMAGE=.*|P4D_ADMIN_IMAGE=$P4D_ADMIN_IMAGE_TAG_PREVIEW_VERSIONED|' .env  && \
+        docker compose up -d"
+      fi
+  only:
+    - master
+    - develop
+
+cleanup:
+  image: alpine:3.19.0
+  stage: cleanup
+  script:
+    - apk add --no-cache curl jq
+    - |
+      if [ "$CI_COMMIT_REF_NAME" = "master" ]; then
+        echo "Fetching and deleting all preview tags..."
+        PREVIEW_TAGS=$(curl -s --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/registry/repositories/$CI_REGISTRY_IMAGE_ID/tags?name_regex=^preview-.*$" | jq -r '.[].name')
+
+        for TAG in $PREVIEW_TAGS; do
+          echo "Deleting tag: $TAG"
+          curl --request DELETE --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/registry/repositories/$CI_REGISTRY_IMAGE_ID/tags/$TAG"
+        done
+      elif [ "$CI_COMMIT_REF_NAME" = "develop" ]; then
+        echo "Fetching preview tags..."
+        PREVIEW_TAGS=$(curl -s --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/registry/repositories/$CI_REGISTRY_IMAGE_ID/tags?name_regex=^preview-.*$" | jq -r '.[] | {name: .name, created: .created_at} | @base64')
+
+        LATEST_TAG=""
+        LATEST_DATE=""
+
+        for TAG in $PREVIEW_TAGS; do
+          TAG_NAME=$(echo $TAG | base64 -d | jq -r '.name')
+          TAG_DATE=$(echo $TAG | base64 -d | jq -r '.created')
+
+          if [ -z "$LATEST_DATE" ] || [ "$TAG_DATE" \> "$LATEST_DATE" ]; then
+            if [ ! -z "$LATEST_TAG" ]; then
+              echo "Deleting old preview tag: $LATEST_TAG"
+              curl --request DELETE --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/registry/repositories/$CI_REGISTRY_IMAGE_ID/tags/$LATEST_TAG"
+            fi
+            LATEST_TAG=$TAG_NAME
+            LATEST_DATE=$TAG_DATE
+          else
+            echo "Deleting old preview tag: $TAG_NAME"
+            curl --request DELETE --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/registry/repositories/$CI_REGISTRY_IMAGE_ID/tags/$TAG_NAME"
+          fi
+        done
+      fi
+  only:
+    - master
+    - develop

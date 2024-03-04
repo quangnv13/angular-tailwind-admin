@@ -1,0 +1,77 @@
+<nav
+  [ngClass]="menuService.showSideBar ? 'w-52 xl:w-64' : 'w-[70px]'"
+  class="flex-col justify-between hidden h-full pt-3 overflow-auto transition-all duration-300 bg-white scrollbar-thumb-rounded scrollbar-track-rounded scrollbar-thin scrollbar-track-gray-50 scrollbar-thumb-gray-100 dark:bg-night-700 dark:scrollbar-thumb-night-500 dark:scrollbar-track-night-600 lg:flex">
+  <div class="px-4">
+    <!-- Logo -->
+    <div class="relative h-10">
+      <div class="flex items-center" *ngIf="menuService.showSideBar">
+        <a class="flex items-center justify-center p-2 rounded bg-primary-500 focus:outline-none focus:ring-1">
+          <!-- <svg-icon src="assets/icons/logo.svg"> </svg-icon> -->
+        </a>
+        <b class="pl-2 ml-1 text-sm font-bold dark:text-night-50">
+          {{ appJson.displayName }}
+        </b>
+      </div>
+      <button
+        (click)="toggleSidebar()"
+        class="absolute flex items-center justify-center w-5 h-5 text-gray-400 transition-all duration-200 rounded top-2 right-2 focus:outline-none hover:text-gray-500 dark:text-night-400 dark:hover:text-night-300"
+        [ngClass]="{ 'rotate-180': !menuService.showSideBar }">
+        <!-- <svg-icon src="assets/icons/heroicons/solid/chevron-double-left.svg"> [svgClass]="'h-5 w-5'"> </svg-icon> -->
+      </button>
+    </div>
+
+    <!-- Separator -->
+    <div class="pt-3">
+      <hr class="border-gray-200 border-dashed dark:border-night-500" />
+    </div>
+
+    <!-- Menu Items -->
+    <app-sidebar-menu></app-sidebar-menu>
+  </div>
+
+  <div class="mx-4 my-4 space-y-1">
+    <!-- Dark Theme -->
+    <!-- <div
+      (click)="toggleTheme()"
+      class="flex items-center justify-start p-2 rounded cursor-pointer group h-9 hover:bg-gray-100 dark:hover:bg-night-600"> -->
+      <!-- <svg-icon
+        [src]="
+          themeService.isDark ? 'assets/icons/heroicons/outline/sun.svg' : 'assets/icons/heroicons/outline/moon.svg'
+        "
+        [svgClass]="'h-5 w-5 text-gray-400 dark:text-night-400'">
+      </svg-icon> -->
+
+      <!-- <a class="ml-3 text-xs font-semibold tracking-wide text-gray-600 truncate focus:outline-none dark:text-night-100">
+        {{ themeService.isDark ? 'Light Theme' : 'Dark Theme' }}
+      </a>
+
+      <div class="fixed w-full" *ngIf="!menuService.showSideBar">
+        <span
+          class="absolute w-auto p-2 text-xs font-bold text-white transition-all duration-200 origin-left scale-0 bg-black rounded-md shadow-md z-1 left-12 -top-4 min-w-max group-hover:scale-100 dark:bg-white dark:text-night-900">
+          Theme
+        </span>
+      </div>
+    </div> -->
+    <!-- Đăng xuất -->
+    <div
+      class="flex items-center justify-start p-2 rounded cursor-pointer group h-9 hover:bg-gray-100 dark:hover:bg-night-600">
+      <!-- <svg-icon
+        src="assets/icons/heroicons/outline/logout.svg"
+        [svgClass]="'h-5 w-5 text-gray-400 dark:text-night-400'">
+      </svg-icon> -->
+
+      <a
+        routerLink="/auth"
+        class="ml-3 text-xs font-semibold tracking-wide text-red-600 truncate focus:outline-none dark:text-night-100">
+        Đăng xuất
+      </a>
+
+      <div class="fixed w-full" *ngIf="!menuService.showSideBar">
+        <span
+          class="absolute w-auto p-2 text-xs font-bold text-white transition-all duration-200 origin-left scale-0 bg-black rounded-md shadow-md z-1 left-12 -top-4 min-w-max group-hover:scale-100 dark:bg-white dark:text-night-900">
+          Đăng xuất
+        </span>
+      </div>
+    </div>
+  </div>
+</nav>

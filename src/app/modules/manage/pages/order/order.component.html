@@ -1,0 +1,103 @@
+<div class="flex-col px-8 py-8 bg-white rounded-lg dark:bg-night-700 sm:flex-row">
+  <div class="flex gap-5">
+    <div class="relative mb-2 w-[200px]">
+      <input
+        #invoiceSearch
+        type="text"
+        id="inoivce-code"
+        class="block peer"
+        placeholder="Nhập mã hoá đơn"
+        (change)="onChangeInvoiceCode($event)" />
+      <label
+        (click)="invoiceSearch.focus()"
+        for="invoice-code"
+        class="cursor-text absolute top-2 left-1 z-10 origin-[0] -translate-y-4 scale-95 transform bg-white px-2 text-sm text-gray-500 duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-95 peer-focus:px-2 peer-focus:text-primary-600 dark:bg-night-700 dark:text-night-200">
+        Tìm kiếm theo mã hoá đơn
+      </label>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-between my-2">
+    <div class="flex-col items-center">
+      <h3 class="font-bold text-gray-900 text-md dark:text-night-50">Danh sách đơn hàng cần xử lý</h3>
+    </div>
+  </div>
+  <div class="relative overflow-x-auto">
+    <table class="w-full table-auto">
+      <!--Table head-->
+      <thead class="text-xs text-gray-400 uppercase dark:text-night-300">
+        <tr>
+          <th class="px-2 py-3 text-left">Mã hoá đơn</th>
+          <th class="py-3 text-right">Người tạo</th>
+          <th class="py-3 text-right">Số điện thoại</th>
+          <th class="py-3 text-right">Số lượng sản phẩm</th>
+          <th class="py-3 text-right">Trạng thái</th>
+          <th class="px-2 py-3 text-right">Xử lý</th>
+        </tr>
+      </thead>
+      <!--end Table head-->
+      <!--Table body-->
+      <tbody>
+        @for (invoice of (invoiceService.invoice$ | async)?.data?.pageData; track $index) {
+        <tr
+          class="border-b border-gray-200 border-dashed cursor-pointer hover:bg-gray-100 dark:border-night-500 dark:hover:bg-night-600">
+          <td class="px-2 py-2 pr-2">
+            <div class="font-semibold">
+              {{ invoice.code }}
+            </div>
+          </td>
+          <td class="py-2 pl-2 text-right">
+            <span class="text-sm font-semibold text-gray-400 dark:text-night-200">
+              {{ calculateTotalPrice(invoice.invoiceDetails) }} vnđ</span
+            >
+          </td>
+          <td class="py-2 pl-2 text-right">
+            <span class="text-sm font-semibold text-gray-400 dark:text-night-200">{{ invoice.fullName }}</span>
+          </td>
+          <td class="py-2 pl-2 text-right">
+            <span class="text-sm font-semibold text-gray-400 dark:text-night-200">{{ invoice.phoneNumber }}</span>
+          </td>
+          <td class="py-2 pl-2 text-right">
+            <!-- <div class="flex items-center justify-start ml-4">
+              <img [src]="auction.avatar" class="w-8 h-8 mr-3 rounded-b-md" alt="" />
+            </div> -->
+            @if (invoice.shipStatus === 0) {
+            <span class="text-sm font-semibold text-yellow-400 dark:text-night-200">Chờ xử lý</span>
+            } @else if (invoice.shipStatus === 1) {
+            <span class="text-sm font-semibold text-orange-400 dark:text-night-200">Đang xử lý</span>
+            } @else if (invoice.shipStatus === 2) {
+            <span class="text-sm font-semibold text-blue-400 dark:text-night-200">Đã gửi</span>
+            } @else if (invoice.shipStatus === 3) {
+            <span class="text-sm font-semibold text-green-400 dark:text-night-200">Đã hoàn thành</span>
+            } @else if (invoice.shipStatus === 4) {
+            <span class="text-sm font-semibold text-red-400 dark:text-night-200">Bom hàng</span>
+            } @else {
+            <span class="text-sm font-semibold text-gray-400 dark:text-night-200">Đã huỷ</span>
+            }
+          </td>
+          <td class="px-2 py-2 text-right">
+            <div class="flex justify-end">
+              <button
+                class="flex items-center justify-center text-white bg-green-500 rounded-md h-7 w-7 dark:bg-night-500 dark:text-night-300 hover:opacity-80"
+                [ngClass]="{ 'opacity-50': invoice.shipStatus !== 0 }"
+                [disabled]="invoice.shipStatus !== 0"
+                (click)="showInvoiceDetail(invoice)">
+                <i class="fa-regular fa-arrow-alt-circle-right"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+      <!--end::Table body-->
+    </table>
+  </div>
+
+  <div class="mt-8">
+    <app-pagination
+      [currentPage]="pageNumber"
+      [itemsPerPage]="pageSize"
+      (pageChange)="onPageChange($event)"
+      [totalItems]="totalItems"></app-pagination>
+  </div>
+</div>

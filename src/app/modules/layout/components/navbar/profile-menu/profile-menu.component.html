@@ -1,0 +1,57 @@
+<div class="relative ml-3">
+  <!-- Profile Button -->
+  <button
+    (click)="toggleMenu()"
+    class="relative flex text-3xl text-green-600 rounded-full"
+    type="button"
+    aria-expanded="false"
+    aria-haspopup="true">
+    <span class="sr-only">Open user menu</span>
+    <!-- <img
+      clickOutside
+      (clickOutside)="isMenuOpen = false"
+      class="rounded-md h-9 w-9"
+      src="https://avatars.githubusercontent.com/u/12519008?v=4"
+      alt="" /> -->
+    <i class="fa-duotone fa-circle-user"></i>
+  </button>
+  <!-- Dropdown -->
+  <div
+    [ngClass]="
+      isMenuOpen
+        ? 'pointer-events-auto scale-100 animate-fade-in-up opacity-100 duration-200'
+        : 'pointer-events-none scale-95 opacity-0 duration-100 ease-in'
+    "
+    class="absolute right-0 py-4 mt-2 transition origin-top-right transform bg-white rounded-md w-60 shadow-custom ring-1 ring-transparent ring-opacity-5 focus:outline-none dark:bg-night-600">
+    <div class="flex items-center px-4 pb-4 flext-row">
+      <div class="w-10 shrink-0">
+        <!-- <img class="rounded-md" src="https://avatars.githubusercontent.com/u/12519008?v=4" alt="" /> -->
+      </div>
+      <div class="px-2 overflow-hidden text-sm font-semibold text-gray-700 dark:text-night-50">
+        {{ (authService.currentUser$ | async)?.userName }}
+      </div>
+    </div>
+
+    <div class="border-b border-gray-200 border-dashed dark:border-night-500"></div>
+
+    <ul class="mx-4 my-2">
+      <!-- <li
+        class="block px-3 py-2 text-sm font-semibold text-gray-700 rounded-md cursor-pointer hover:bg-gray-100 hover:text-primary-500 dark:text-night-200 dark:hover:bg-night-500 dark:hover:text-primary-500">
+        Your Profile
+      </li>
+      <li
+        class="block px-3 py-2 text-sm font-semibold text-gray-700 rounded-md cursor-pointer hover:bg-gray-100 hover:text-primary-500 dark:text-night-200 dark:hover:bg-night-500 dark:hover:text-primary-500">
+        Language
+      </li>
+      <li
+        class="block px-3 py-2 text-sm font-semibold text-gray-700 rounded-md cursor-pointer hover:bg-gray-100 hover:text-primary-500 dark:text-night-200 dark:hover:bg-night-500 dark:hover:text-primary-500">
+        Settings
+      </li> -->
+      <li
+        (click)="authService.logout()"
+        class="block px-3 py-2 text-sm font-semibold text-red-700 rounded-md cursor-pointer hover:bg-gray-100 hover:text-primary-500 dark:text-night-200 dark:hover:bg-night-500 dark:hover:text-primary-500">
+        Đăng xuất
+      </li>
+    </ul>
+  </div>
+</div>

@@ -1,0 +1,27 @@
+<div class="flex items-center gap-2">
+  <div>
+    <div class="w-0 h-0 overflow-hidden"><canvas id="front-design" width="500" height="500" hidden></canvas></div>
+    <img [src]="designs[0].designImage" width="200" />
+    <button
+      class="flex items-center justify-center gap-2 px-5 mx-auto text-white bg-green-500 rounded-md h-7 dark:bg-night-500 dark:text-night-300 hover:opacity-80"
+      (click)="downloadImage('front')">
+      Download <i class="fas fa-file-download"></i>
+    </button>
+  </div>
+  <div>
+    <div class="w-0 h-0 overflow-hidden">
+      <canvas id="back-design" width="500" height="500" hidden></canvas>
+    </div>
+    <img [src]="designs[1].designImage" width="200" />
+    <button
+      class="flex items-center justify-center gap-2 px-5 mx-auto text-white bg-green-500 rounded-md h-7 dark:bg-night-500 dark:text-night-300 hover:opacity-80"
+      (click)="downloadImage('back')">
+      Download <i class="fas fa-file-download"></i>
+    </button>
+  </div>
+  <div>
+    <p>Tên sản phẩm: {{ name }}</p>
+    <p>Chi phí in: {{ printPrice | formatCurrency }}</p>
+    <p>Giá sản phẩm: {{ dropshipPrice | formatCurrency }}</p>
+  </div>
+</div>

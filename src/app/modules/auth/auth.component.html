@@ -1,0 +1,29 @@
+<div class="flex w-screen h-screen">
+  <div class="items-center justify-center flex-1 hidden bg-cover auth-bg bg-primary-500 lg:flex">
+    <div class="max-w-2xl p-8 space-y-4 text-center text-white">
+      <img src="./assets/images/auth-screens.png" alt="dashboard widget" />
+      <h1 class="text-4xl font-bold">"Fast, Efficient and Productive"</h1>
+      <p class="text-xs font-light">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+        magna aliqua. Ut enim ad minim veniam, quis
+        <span class="font-medium text-yellow-400 cursor-pointer">nostrud</span> exercitation ullamco laboris nisi ut
+        aliquip ex ea commodo <span class="font-medium text-yellow-400 cursor-pointer">consequat.</span> Duis aute irure
+        dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+        cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      </p>
+    </div>
+  </div>
+  <div class="flex items-center justify-center flex-1 bg-white dark:bg-night-700">
+    <div class="max-w-md overflow-y-auto px-4 sm:w-[500px]">
+      <!-- logo -->
+      <div class="flex items-center justify-center">
+        <!-- <a class="p-2 rounded bg-primary-500">
+          <svg-icon src="assets/icons/logo.svg" [svgClass]="'h-5 w-5'"> </svg-icon>
+        </a> -->
+        <b class="pl-3 font-bold text-gray-700 text-md dark:text-white">P4D</b>
+      </div>
+      <!-- Route -->
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

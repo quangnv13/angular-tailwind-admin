@@ -1,0 +1,45 @@
+<div *ngIf="itemDetails !== undefined && itemDetails.length !== 0">
+  <h3 class="mb-5 text-3xl font-medium text-center">Chi tiết đơn hàng</h3>
+  <div class="mb-2">
+    <p>Mã hoá đơn: {{ dialogData.data.code }}</p>
+    <p>Người nhận: {{ dialogData.data.fullName }}</p>
+    <p>Địa chỉ: {{ dialogData.data.shipAddress }}</p>
+    <p>Số điện thoại: {{ dialogData.data.phoneNumber }}</p>
+    <p class="font-bold">
+      Phương thức thanh toán:
+      {{
+        dialogData.data.paymentMethod === 1 ? 'Chuyển khoản trực tiếp qua QRCode' : 'Chuyển hàng nhận tiền(Ship COD)'
+      }}
+    </p>
+  </div>
+  <div class="flex items-center gap-3 p-2 border">
+    <app-item-design
+      *ngFor="let item of itemDetails"
+      [designs]="item.productDesign.productDesignDetails"
+      [name]="item.productDesign.name"
+      [printPrice]="item.productDesign.printPrice"
+      [dropshipPrice]="item.dropshipPrice">
+    </app-item-design>
+  </div>
+  <div class="mt-10">
+    <p class="mb-3 text-2xl font-semibold text-center">
+      Tổng tiền đơn hàng: {{ dialogData.data.invoiceDetails | calculateTotalPrice | formatCurrency }}
+    </p>
+    <button
+      *ngIf="dialogData.data.status === 0 && dialogData.data.paymentMethod === 1"
+      class="flex items-center justify-center h-10 gap-2 px-5 mx-auto text-white bg-green-500 rounded-md dark:bg-night-500 dark:text-night-300 hover:opacity-80"
+      (click)="showConfirmPaidApprove()">
+      Duyệt hoá đơn đã thanh toán
+      <i class="fa-regular fa-file-check"></i>
+    </button>
+    <button
+      *ngIf="dialogData.data.status === 0 && dialogData.data.paymentMethod === 2"
+      class="flex items-center justify-center h-10 gap-2 px-5 mx-auto text-white bg-orange-500 rounded-md dark:bg-night-500 dark:text-night-300 hover:opacity-80"
+      [ngClass]="{ 'opacity-50': dialogData.data.status !== 0 }"
+      [disabled]="dialogData.data.status !== 0"
+      (click)="showConfirmApprove()">
+      Duyệt hoá đơn
+      <i class="fa-regular fa-file-check"></i>
+    </button>
+  </div>
+</div>

@@ -1,0 +1,5 @@
+<div [ngClass]="{ dark: this.themeService.isDark }">
+  <router-outlet></router-outlet>
+  <app-responsive-helper></app-responsive-helper>
+</div>
+<app-spin-loader></app-spin-loader>

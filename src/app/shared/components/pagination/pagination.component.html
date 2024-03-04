@@ -1,0 +1,19 @@
+<nav aria-label="Page navigation" class="flex items-center justify-center">
+  <ul class="inline-flex items-center -space-x-px">
+    <li class="page-item" [ngClass]="{'opacity-60': currentPage === 1}">
+      <a class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 page-link hover:bg-gray-100 hover:text-gray-700" href="#" (click)="previousPage(); $event.preventDefault()">
+        <i class="fas fa-chevron-left"></i>
+      </a>
+    </li>
+    <li>
+      <span class="mx-3">
+        Trang {{currentPage}}/{{totalPages}}
+      </span>
+    </li>
+    <li class="page-item" [ngClass]="{'opacity-60': currentPage === totalPages}">
+      <a class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 page-link hover:bg-gray-100 hover:text-gray-700" href="#" (click)="nextPage(); $event.preventDefault()">
+        <i class="fas fa-chevron-right"></i>
+      </a>
+    </li>
+  </ul>
+</nav>
